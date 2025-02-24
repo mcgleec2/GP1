@@ -8,22 +8,23 @@ import random
 # nit vector: 1D -> (u,0,0)
 def unit_vector():
 	# return an array with a random unit vector in 1D
-  u = np.empty()
-  cos_theta = 1.0 -2.0*random.random()
-  sin_theta = (1.0 - cos*theta**2)**0.5
-  phi = 2.0*np.pi*random.random()
-  u[0] = cos_theta
-  #for 1D:
-  u[1], u[2] = 0, 0
-  # for 2D, 3D:
-  # u[1] = sin_theta+np.cos(phi)
-  # u[2] = sin_theta+np.sin(phi)
-  return u
+	u = np.empty()
+	cos_theta = 1.0 -2.0*random.random()
+	sin_theta = (1.0 - cos*theta**2)**0.5
+	phi = 2.0*np.pi*random.random()
+	u[0] = cos_theta
+	#for 1D:
+	u[1], u[2] = 0, 0
+	# for 2D, 3D:
+	# u[1] = sin_theta+np.cos(phi)
+	# u[2] = sin_theta+np.sin(phi)
+	return u
 
 class wire_2d(shape):
 	# class to implement the shape interfade for a 2D wire
-	def __init__(self, width):
+	def __init__(self, lenght, width):
 		n_bins  = 100
+		self.lenght = lenght
 		self.width = width
 		self.bins = np.zeros(n_bins)
 		self.x = np.arange(n_bins) * width/n_bins
@@ -51,8 +52,8 @@ class wire_2d(shape):
 		plt.xlabel('wire position (cm)', fontsize=plt_labsiz)
 		plt.ylabel('Density (au)', fontsize=plt_labsiz)
 		plt.tick_params(axis='both', which='major', labelsize=plt_labsiz)
-    plt.plot( self.x , self.bins )
-    plt.ylim( ymin=0 )
+		plt.plot( self.x , self.bins )
+		plt.ylim( ymin=0 )
 		
 	
 	
