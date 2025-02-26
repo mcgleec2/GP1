@@ -4,7 +4,7 @@ import argparse
 sys.argv = sys.argv[:1]
 
 parser = argparse.ArgumentParser()
-parser.add_argument( '--mayavi', help='Use mayavi'
+parser.add_argument( '--mayavi', help='Use mayavi',
 		    default=False,action='store_true')
 #parser.add_argument( '--material', action = 'store', type = str
 #                     , help = 'Name of material.',default='u235')
@@ -152,7 +152,7 @@ class ElectronElectron:
         return ended	
 	
 	
- def run(self):
+def run(self):
 
         shape = choose_shape(args.shape, args.length, args.width)
         initial_queue_length = args.queue
