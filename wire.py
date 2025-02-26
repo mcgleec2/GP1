@@ -5,7 +5,7 @@ import random
 
 
 
-# nit vector: 1D -> (u,0,0)
+# unit vector: 1D -> (u,0,0)
 def unit_vector():
 	# return an array with a random unit vector in 1D
 	u = np.empty()
@@ -14,33 +14,34 @@ def unit_vector():
 	phi = 2.0*np.pi*random.random()
 	u[0] = cos_theta
 	#for 1D:
-	u[1], u[2] = 0, 0
+	u[1] = 0
+	# u[2] = 0
 	# for 2D, 3D:
 	# u[1] = sin_theta+np.cos(phi)
 	# u[2] = sin_theta+np.sin(phi)
 	return u
 
-class wire_2d(shape):
+class wire_2d:
 	# class to implement the shape interfade for a 2D wire
 	def __init__(self, lenght, width):
 		n_bins  = 100
 		self.lenght = lenght
 		self.width = width
 		self.bins = np.zeros(n_bins)
-		self.x = np.arange(n_bins) * width/n_bins
+		self.x = np.arange(n_bins) * lenght/n_bins   #check lenght or width
 
 	def inside(self, r):
-		if  0.0 <= r[0] <= self.lenght and (-self.width/2) <= R[1] <= (self.width/2): 
+		if  0.0 <= r[0] <= self.lenght and (-self.width/2) <= r[1] <= (self.width/2): 
 			return True
 		else:
 			return False
 
 	def random_point(self):
 		# return a random point inside the 2D wire:
-		x = random.random()*self.width
+		x = random.random()*self.lenght #check lenght or width
 		#y = (random.random() *2 -1) *self.width /2 #for 2D wire
 		y = 0.0 # for 1D wire
-		return [x, y, 0.0]
+		return [x, y]
 
 	def sample(self, r):
 		i = int(r[0]/self.lenght*len(self.bins))
