@@ -151,13 +151,13 @@ class ElectronElectron:
             queue.appendleft(new_position)  # Keep the new position in the queue for future simulation
         return ended	
 	
-	
+#~~~~~~~run the simulation~~~~~~~~~#	
 def run(self):
-
+#shape is chosen with parameters
         shape = choose_shape(args.shape, args.length, args.width)
         initial_queue_length = args.queue
         maximum_paths = args.paths
-
+#determine the number of points and put them into queue
         queue = deque()
         for i in range(initial_queue_length):
             queue.appendleft( shape.random_point() )
@@ -169,14 +169,14 @@ def run(self):
         paths           = []     # Number of trajectories examined (for plotting)
         grow            = []     # Growth rate (for plotting)
         grow_err        = []
-
+#loop is run while electrons are still in the queue until the max number of paths is reached
         while len(queue) > 0 and path_counter < maximum_paths:
 
             r = queue.pop()
-
+#scatter function to demonstrate electron's movement through the wire
             while not self.scatter(r, queue, self.electrons):
                 shape.sample(r)
-
+#checks the queue length and paths, plots the electrons in queue vs the number of paths
             if path_counter%update_interval == 0:
                 queue_length.append( len( queue ) )
                 paths.append( len(queue_length)*update_interval )
@@ -184,7 +184,8 @@ def run(self):
                 plt.cla()
                 plt.tick_params(axis='both', which='major', labelsize=plt_labsiz)
                 plt.plot( paths , np.array( queue_length ) )
-                if len(paths) > 2:
+#uses expodential plot to show the growth rate and errors                
+		if len(paths) > 2:
                     p , s = exponential().fit( paths, np.array( queue_length ) )
                     grow.append( p[1] )
                     grow_err.append( s[1] )
@@ -207,7 +208,7 @@ def run(self):
                 plt.pause( 0.001 )
             path_counter += 1
         shape.plot_density( 3 )
-
+#indicate when queue is empty or max number of paths reached and the loop stops
         if len( queue ) == 0:
             sys.stderr.write( 'Stopped.  Queue empty.\n' )
         else:
