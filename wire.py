@@ -1,3 +1,20 @@
+'''
+*System description:
+Electron movement in 1D inside a 1D wire. In the code you can find some
+sections that have been prepared to run the simulation for a 1D movement
+of the elctrons inside a 2D wire
+
+Also, even though the electron-electron interaction is being evaluated by 
+couloumbs law, the position of the electrons is not updated. This will be 
+new positions will be implemeted after a visual output of the simulation is obtained
+'''
+
+'''
+References:
+[1] This code was written by using as a reference the critical_cylinder.py 
+code written by Miles Turner, PHY1063-Computational Phydics, DCU, 2024
+'''
+
 import sys
 import argparse
 
@@ -9,7 +26,7 @@ parser.add_argument( '--mayavi', help='Use mayavi',
 #parser.add_argument( '--material', action = 'store', type = str
 #                     , help = 'Name of material.',default='u235')
 parser.add_argument( '--shape', action = 'store', type = str
-                     ,help = 'Name of shape.',default='wire_2d')
+                     ,help = 'Name of shape.',default='wire_1D')
 parser.add_argument( '--length', action = 'store', type = float
                      , help = 'Characteristic length.',default=5.745868e-2)
 parser.add_argument( '--width', action = 'store', type = float
@@ -32,39 +49,27 @@ import sys
 
 plt_labsiz = 20
 
-# unit vector: 1D -> (u,0,0)
+#~~~~~~~ create a random unit vector (direction of initial 
+# movemement of the electrons) in 1D -> (u,0,0), ~~~~~~~~~#	 
 def unit_vector():
-	# return an array with a random unit vector in 1D
+	# the component x is obtained as if a 2D or 3D total vector was obtained 
 	u = np.empty()
 	cos_theta = 1.0 -2.0*random.random()
 	sin_theta = (1.0 - cos*theta**2)**0.5
 	phi = 2.0*np.pi*random.random()
 	u[0] = cos_theta
 	#for 1D:
-	u[1] = 0
-	# u[2] = 0
+	u[1], u[2] = 0, 0
 	# for 2D, 3D:
 	# u[1] = sin_theta+np.cos(phi)
 	# u[2] = sin_theta+np.sin(phi)
 	return u
 
-class exponential:
-    """Fit an exponential to supplied data, and return the
-       best fit coefficients and one standard deviation error.
-    """
-    @staticmethod
-    def f( x , p0 , p1 ):
-        return p0*np.exp( x*p1 )
 
-    def fit( self , x , y ):
-        p0 = [ y[0] , 0.0 ]
-        p,cov=curve_fit(self.f,x,y,p0=p0)
-        return p, np.sqrt( np.diag( cov ) )
-
-class linear:
-    """Fit an linear function to supplied data, and return the
-       best fit coefficients and one standard deviation error.
-    """
+# ~~~~~~~ Fit an linear function to supplied data, and return the
+# best fit coefficients and one standard deviation error. ~~~~~~~#
+# class copied from  the critical_cylinder.py code [1]
+class linear:  
     @staticmethod
     def f( x , p0 , p1 ):
         return p0*(x*p1 + 1.0)
@@ -74,49 +79,60 @@ class linear:
         p,cov=curve_fit(self.f,x,y,p0=p0)
         return p, np.sqrt( np.diag( cov ) )
 
-class wire_2d:
-	# class to implement the shape interfade for a 2D wire
-	def __init__(self, lenght, width):
-		n_bins  = 100
-		self.lenght = lenght
-		self.width = width
-		self.bins = np.zeros(n_bins)
-		self.x = np.arange(n_bins) * lenght/n_bins   #check lenght or width
 
+
+ #~~~~~~~ class to implement the shape interface for a 2D wire ~~~~~~~#
+class wire_1D:
+	def __init__(self, lenght, width):
+		n_bins  = 100                               # number of bin for elctron sampling inside the wire
+		self.lenght = lenght                        # wire lenght
+		self.width = width                          # wire width
+		self.bins = np.zeros(n_bins)                # create the bins
+		self.x = np.arange(n_bins) * lenght/n_bins  # set the x-axis position of bins
+
+	# check if the array r is inside the wire, keep running if True, stop if False
 	def inside(self, r):
 		if  0.0 <= r[0] <= self.lenght and (-self.width/2) <= r[1] <= (self.width/2): 
 			return True
 		else:
 			return False
 
+	# return a random point as the initial position of the electrons inside the wire
 	def random_point(self):
-		# return a random point inside the 2D wire:
 		x = random.random()*self.lenght #check lenght or width
-		#y = (random.random() *2 -1) *self.width /2 #for 2D wire
 		y = 0.0 # for 1D wire
+		#y = (random.random() *2 -1) *self.width /2 #for 2D wire
 		return [x, y]
 
-	def sample(self, r):
-		i = int(r[0]/self.lenght*len(self.bins))
-		self.bins[i] += 1
+	# Save the position r[0] to their respect bin
+	def shape(self, r):
+		i = int(r[0]/self.lenght*len(self.bins))  # check the bin that r[0] correspond to
+		self.bins[i] += 1                         # increment the count of such bin
 
+	# Plot the elctron density disctribution across the wire
 	def plot_density(self, figure_index):
 		plt.figure(figure_index)
-		plt.cla()
+		plt.cla() #clear previous plot
 		plt.xlabel('wire position (cm)', fontsize=plt_labsiz)
 		plt.ylabel('Density (au)', fontsize=plt_labsiz)
 		plt.tick_params(axis='both', which='major', labelsize=plt_labsiz)
 		plt.plot( self.x , self.bins )
 		plt.ylim( ymin=0 )
-		
+
+
+#~~~~~~~ Checks that the shape is described in the code ~~~~~~#
+# can facilitate the code in the future if ran for a 2D wire
 def choose_shape( name , length, width ):
-    if name == 'wire_2d':
-        return wire_2d( length, width )
+    if name == 'wire_1D':
+        return wire_1D( length, width )
     else:
         sys.stderr.write( 'Unknown shape: {}\n'.format( name ) )
         sys.exit( 1 )
 
 
+#~~~~~~~ Class that contanins all the definitions needed to evaluate the 
+# movement of the electrons due to randomness and electrons-electrons
+# interaction ~~~~~~~#
 class ElectronElectron:
     def __init__(self, wire, max_paths, queue_length):
         self.wire = wire
@@ -125,32 +141,41 @@ class ElectronElectron:
         self.electrons = []
 
     def scatter(self, position, queue, electrons):
-        k_e=8.99e9
-        e_charge=1.6e-19
+	# Constants:
+        k_e=8.99e9        # Coulomb's constant (nm^2/C^2 )
+        e_charge=1.6e-19  # Electrons charge
 
-        """Move the electron in a random direction in 2D."""
+        # move the elctron in the random direction given by the def unit_vector
         move_x, move_y, move_z = unit_vector()
         new_position = (position[0] + move_x * random.uniform(0, 1),
                     position[1] + move_y * random.uniform(0, 1))
-
-        for electron in electrons:
-          if electron != position:
+	    
+	# Evaluate Coulomb's repulsion of the elcectrons and the ones sourranding it
+	for electron in electrons:
+          if electron != position: # avoid electrons which are in the same location, or self-interaction
               distance = np.linalg.norm(np.array(new_position) - np.array(electron))  # distance between electrons
-              if distance < 1e-10:  # if eelectrons are too close:
-                  # Repulsion force using coulomb
-                  force = k_e * (e_charge ** 2) / distance ** 2
-                  # modify the direction because of coulombs law
-                  move_x += force * (new_position[0] - electron[0])
-                  move_y += force * (new_position[1] - electron[1])
-
-
-        ended = False
+              	   # if electrons are too close,  calculate repulsion, else: no interaction
+	       if distance < 1e-10: 
+		  force = k_e * (e_charge ** 2) / distance ** 2
+		  # modify the direction because of coulombs law
+		  move_x += force * (new_position[0] - electron[0])
+		  move_y += force * (new_position[1] - electron[1])
+		       
+		  #update the position of the electron after Coulomb interaction
+	    	  #new_position[0] += force_x 
+		  #new_position[1] += forfe_y
+		       
+	ended = False
+	# make sure electrons are still inside of the wire
         if not self.wire.inside(new_position):
-            ended = True
+            ended = True # dont save the new position
         else:
-            queue.appendleft(new_position)  # Keep the new position in the queue for future simulation
+            queue.appendleft(new_position)  # Store the new position
         return ended	
-	
+
+
+
+
 #~~~~~~~run the simulation~~~~~~~~~#	
 def run(self):
 #shape is chosen with parameters
@@ -219,9 +244,7 @@ def run(self):
 
 
 
-
-
-wire = wire_2d(args.length, args.width)
+wire = wire_1D(args.length, args.width)
 simulation = ElectronElectron(wire, args.paths, args.queue, )
 
 # Run the simulation
@@ -230,21 +253,6 @@ simulation.run()
 
 plt.ioff()
 plt.show()
-
-
-
-
-# Constants
-e = 1.602e-19
-
-# Data and data lists
-update_interval = 100
-path_counter =  0
-queue_lenght =  []
-paths        =  []
-grow         =  []
-grow_err     =  []
-
 
 
 
