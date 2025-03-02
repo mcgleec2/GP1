@@ -152,8 +152,24 @@ void run_simulation() {
 
 // Main function
 int main() {
+    struct timespec start_time, end_time, time_diff;
+    double runtime = 0.0;
+    timespec_get(&start_time, TIME_UTC); // Capture start time
+
     initialize_electrons(); // Initialise electron positions and velocities
     run_simulation(); // Run the simulation
+
+    timespec_get(&end_time, TIME_UTC); // Capture end time
+
+    time_diff.tv_sec = end_time.tv_sec - start_time.tv_sec;
+    time_diff.tv_nsec = end_time.tv_nsec - start_time.tv_nsec;
+    if (time_diff.tv_nsec < 0) {
+        time_diff.tv_sec -= 1;
+        time_diff.tv_nsec += 1000000000;
+    }
+    runtime = time_diff.tv_sec + time_diff.tv_nsec / 1e9;
+
     printf("Simulation complete. Data saved to electron_data.csv.\n"); // Check if program has ran
+    printf("Runtime: %lf seconds\n", runtime);
     return 0;
 }
