@@ -6,7 +6,7 @@ serial.c:
 - 
 
 
-serial_plot.py:
+plot.py:
 
 - This code was run using Colab Notebooks and not on the Command Prompy.
 - Had to copy the output data from serial.c manually and create own txt file with the data and 
@@ -15,3 +15,10 @@ headers. Then upload that txt file to the same Google Drive folder that contains
 to plot the average velocty vs the time steps.
 - Average velcoity vs time step is just a linearly decreasing line ???.
 - 
+
+
+parallel.c:
+
+- Parallelised version of serial.c
+- Processes handle own sections and pass electrons along with messages.
+- Last process at end of boundary wraps bacj to the root for electrons to pass through again.
