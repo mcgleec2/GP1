@@ -22,3 +22,13 @@ parallel.c:
 - Parallelised version of serial.c
 - Processes handle own sections and pass electrons along with messages.
 - Last process at end of boundary wraps bacj to the root for electrons to pass through again.
+
+
+trouble_python_code.py
+- code to run simulation on python code
+- hard understanding of the final graphs
+- due to lack of time to fix the errors and understand the plots we decided to focus on the c code
+
+
+Note:
+- Original repo was set to be private, therefore this new one had to be create to let only view acces.
